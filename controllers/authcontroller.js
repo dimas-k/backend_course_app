@@ -20,7 +20,7 @@ exports.login = async (req, res) => {
       return res.status(404).json({ message: 'User tidak ditemukan' });
     }
 
-    // Cek password
+    // Cek password - PERBAIKAN: gunakan passwordHash yang sesuai
     const isMatch = await bcrypt.compare(password, user.passwordHash);
     if (!isMatch) {
       return res.status(401).json({ message: 'Password salah' });
@@ -41,9 +41,14 @@ exports.login = async (req, res) => {
       maxAge: 24 * 60 * 60 * 1000 // 1 hari
     });
 
+    // PERBAIKAN: Kirim response dengan struktur yang diharapkan frontend
     res.json({
       message: 'Login berhasil',
-      role: user.role
+      user: {  // <- Tambahkan object user
+        id: user._id,
+        username: user.username,
+        role: user.role  // <- Ini yang dicari frontend
+      }
     });
 
   } catch (err) {
@@ -64,7 +69,6 @@ exports.logout = (req, res) => {
   });
   return res.json({ message: 'Logout berhasil' });
 };
-
 
 /**
  * Middleware: cek token JWT
